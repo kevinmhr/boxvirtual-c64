@@ -272,8 +272,8 @@ STOPMUSIC
 WAITRASTER                  
                 
                         ; WAITS FOR RASTERLINE 20
-                lda $D012
-                cmp #255
+                lda #1
+                cmp $d012
                 BNE WAITRASTER
                 RTS
                 
@@ -641,8 +641,7 @@ COLLIDED2
                 STA SPRITEPOS+$07          
                 STA SPRITEPOS+$0A
                 STA SPRITEPOS+$0B   
-                STA SPRITEPOS+$0C 
-                 STA SPRITEPOS+$0D 
+     
                 JMP MAINLOOP          ; RETURN BACK TO THE MAINLOOP
 
 ;-------------------END GAME------------------------------
@@ -805,7 +804,7 @@ ldyagain
 COLORANIM1
               ldx #0             ; CYCLE THE COLOR OF EACH LETTER
 LUP1            
-inx
+ 
 LDA SCREEN4COL,x
                 
                 TAY
@@ -815,7 +814,8 @@ LDA SCREEN4COL,x
               STA SCREEN2COL,X
               STA SCREEN3COL,X
               STA SCREEN4COL,X
-                   cpx #80
+                  inx
+                  cpx #80
                    bne LUP1
                 RTS
 

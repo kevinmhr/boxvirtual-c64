@@ -814,9 +814,7 @@ LUP1
  
 LDA SCREEN4COL,x
                 
-                TAY
-                INY
-                TYA
+               lda #$0b
                 STA SCREEN1COL,X
               STA SCREEN2COL,X
               STA SCREEN3COL,X

@@ -18,6 +18,8 @@ bgchar =$22
                 LDA #$00                ;BLACK COLOR FOR THE BORDER AND
                 STA $D021               ;BACKGROUND
                 STA $D020 
+                  STA HISCORE
+                 STA HISCORE+1
                 ;JSR PLAYMUSIC           ; PLAY INTRO MUSIC
 BEGINNING       LDA #03                 ; SET LIVES TO 3
                 STA LIVES
@@ -32,7 +34,8 @@ BEGINNING       LDA #03                 ; SET LIVES TO 3
                 STA ENEMY2DIR           ; DIRECTION OF THE 2ND ENEMY SHIP
                 STA KEY                 ; KEYBOARD SPACE KEY CHECK VARIABLE
                 STA SCORE               ; SCORE LOW !byte
-                STA SCORE+1             ; SCORE HIGH !byte
+                STA SCORE+1   
+               ; SCORE HIGH !byte
                 ;LDA #$01
                 STA MISSILETIME
                  ;DRAW THE BITMAP TITLE SCREEN
@@ -50,9 +53,9 @@ MAINLOOP
                ; JSR STARANIMATION     ; ANIMATE BACKGROUND STARS
                  JSR EXPANDSPRITEPOS   ; ADJUST SPRITE POSITONS FOR X > 255
             inc $d025
-   
+            inc byteCOUNT2
                JSR COLLANIM
-              jsr changebulletspr
+            
               JSR COLORANIM1
                 JSR MAINSHIP          ; WAIT FOR JOYSTICK TO COMMAND AND MOVE MAIN SHIP
                 JSR BULLETMOVE        ; MAINSHIP BULLET CHECK AND CONTROL
@@ -64,8 +67,8 @@ MAINLOOP
                 jsr cls
               ; JSR bgscreen
                 JSR COLLISIONCHECK    ; CHECK IF ANY COLLISION OCCURS
-                 inc byteCOUNT2
-     
+             
+                ; jsr changebulletspr
  
                JMP MAINLOOP          ; CONTINUE THE LOOP
 changebulletspr
@@ -76,7 +79,7 @@ inc $8192,x
 lda $8192,x
 eor byteCOUNT2
 sta $8192,x
-cpx #$65
+cpx #$64
 bne changebulletsprlp
 rts
 
@@ -570,7 +573,8 @@ COLLIDED
                 JSR Collidedsnd
              ;   inc SPRBUF 
          
-                JSR WRITESCORE        ; GOTO WRITE SCORE SUBROUTINE
+                JSR WRITESCORE  
+          ; GOTO WRITE SCORE SUBROUTINE
                 JSR CHECKEXTRALIFE    ; CHECK SCORE FOR EXTRALIFE
                 JSR COLLANIM          ; COLLISION ANIMATION
                 JSR ENEMYHITCLEAR     ; CLEAR THE BOTTOM !SCR
@@ -618,7 +622,7 @@ RSTENEMYSPR  LDA #50
 
                ;-------------------ENEMY SHIP BULLET AND MAINSHIP COLLIDED------------------------
 COLLIDED2
-           
+             JSR EXPANDSPRITEPOS
                 LDA #7
                 STA SOUND
                  JSR MISSILEBEEP
@@ -634,8 +638,10 @@ COLLIDED2
                 LDA #$00              ; RESET COLLISION REGISTER
                 STA $D01E      
                 STA ENEMYBULLET       ; RESET ENEMY SHIP BULLET REGISTER
-               
-                STA SPRITEPOS+$04     ; RESET SPRITE POSITIONS
+                   ; RESET ENEMY SHIP BULLET REGISTER
+                LDA #$00
+                STA MISSILEON
+              STA SPRITEPOS+$04     ; RESET SPRITE POSITIONS
                 STA SPRITEPOS+$05
                 STA SPRITEPOS+$06
                 STA SPRITEPOS+$07          
@@ -646,7 +652,8 @@ COLLIDED2
 
 ;-------------------END GAME------------------------------
 GAMEOVER
-               
+                       JSR CHECKHISCORE        ; CHECK IF THERE IS A NEW HIGH SCORE
+                JSR WRITEHISCORE 
             
                LDX #0                  ; GAME OVER !SCR
 GO              LDA ENDSCR1,X
@@ -677,13 +684,13 @@ GO4             LDA #1
                 LDA #$02
                ; STA SOUND       
                ;  JSR PLAYSOUND           ; PLAY ENDING MUSIC
-                JSR CHECKHISCORE        ; CHECK IF THERE IS A NEW HIGH SCORE
-                JSR WRITEHISCORE        ; PRINT THE HIGH SCORE TO SCREEN
+                 ; PRINT THE HIGH SCORE TO SCREEN
 INPUT           JSR COLORANIM1          ; !SCR COLOR ANIMATIN OF THE 1ST LINE
                 JSR COLORANIM2          ; !SCR COLOR ANIMATIN OF THE 2ND LINE
-                LDA #$ff         ; WAITS FOR RASTERLINE 20
+          
+               LDA #$ff         ; WAITS FOR RASTERLINE 20
                 CMP $D012
-                
+                   
                 BNE GAMEOVER
                         ; WAIT FOR KEYBOARD INPUT
                 ;BEQ INPUT
@@ -802,7 +809,7 @@ ldyagain
 
 ;-------------COLOR ANIMATION FOR GAME OVER------------------------
 COLORANIM1
-              ldx #0             ; CYCLE THE COLOR OF EACH LETTER
+              ldx SPRBUF           ; CYCLE THE COLOR OF EACH LETTER
 LUP1            
  
 LDA SCREEN4COL,x
@@ -1425,7 +1432,7 @@ byteCOUNT =  $62f0
 byteCOUNT2 =  $62f1   
 
 ; ENEMY SHIP POS COUNTER FOR THE SINE TABLE
-SCORE       = $63f0             ; SCORE VARIABLE FOR 4 DIGITS
+SCORE       = $43f0             ; SCORE VARIABLE FOR 4 DIGITS
 HISCORE     = $44f0           ; HI-SCORE VARIABLE FOR 4 DIGITS
 ENSHIPDIR  =  $65f0             ; ENEMY SHIP CIRCLE DIRECTION   0= LEFT2RIGHT, 1=RIGHT2LEFT
 ENEMYBULLET  = $66f0            ; ENEMY BULLET VARIABLE 0=NO BULLET ON SCREEN
